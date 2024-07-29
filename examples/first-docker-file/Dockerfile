@@ -1,21 +1,16 @@
-# Use a base Python image
-FROM python:3.12-slim
+OM ubuntu:latest
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y python3-venv
+# Set the working directory in the image
+WORKDIR /app
 
-# Create and activate a virtual environment
-RUN python3 -m venv /venv
+# Copy the files from the host file system to the image file system
+COPY . /app
 
-# Upgrade pip and install requirements
-RUN /venv/bin/pip install --upgrade pip
-COPY requirements.txt .
-RUN /venv/bin/pip install -r requirements.txt
+# Install the necessary packages
+RUN apt-get update && apt-get install -y python3 python3-pip
 
-# Set the environment variable to use the virtual environment
-ENV PATH="/venv/bin:$PATH"
+# Set environment variables
+ENV NAME World
 
-# Set working directory
-WORKDIR /app/devops
-
+# Run a command to start the application
+CMD ["python3", "app.py"]
