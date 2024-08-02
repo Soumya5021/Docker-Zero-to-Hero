@@ -1,32 +1,37 @@
-# Use an official Ubuntu base image
-FROM ubuntu:20.04
+# Use an official Python base image
+FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies and Python
+# Install system dependencies and clean up
 RUN apt-get update && \
     apt-get install -y \
-    python3 \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+    build-essential \
+    libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy application files and dependencies
+# Create a virtual environment
+RUN python3 -m venv /opt/venv
+
+# Ensure virtual environment is used
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Upgrade pip and install dependencies
 COPY requirements.txt /app/
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Copy application files
 COPY devops /app/devops
 
-# Install Python dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt
-
-# Set environment variables if needed
-# ENV DJANGO_SETTINGS_MODULE=myproject.settings
-
-# Set the working directory to devops if that's where manage.py is
+# Set the working directory to where manage.py is
 WORKDIR /app/devops
 
-# Default command to run the Django application
-ENTRYPOINT ["python3"]
+# Define the command to run the application
+ENTRYPOINT ["python"]
 CMD ["manage.py", "runserver", "0.0.0.0:8000"]
+
 
 
 
